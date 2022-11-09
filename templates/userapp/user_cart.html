@@ -1,0 +1,286 @@
+{% extends 'userapp/base_user.html' %}
+
+  {% block title %} cart {% endblock %}
+{% load static %}
+{%block head%}
+
+
+
+{%endblock%}
+
+{% block category %} 
+<div class="dropdown">
+  <button class="dropbtn"style="padding-left: 40px;"><h4 style="padding-top: 7px;">Categories<i style="padding-left: 5px;;" class="fa fa-caret-down"></i></h4>
+    
+  </button>
+  <div class="dropdown-content">
+    {% for x in category_data%}
+    <a href="/category/{{x.id}}">{{x.categoryname}}</a>
+    {% endfor %}
+    
+  </div>
+</div> 
+{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+  background: #97cfe5;
+  background: -webkit-linear-gradient(to right, #dad6d1, #dbd5e6);
+  background:linear-gradient(to right, #fefeff, #b5c1d4);
+    min-height: 100vh;
+}
+</style>
+
+{% if no == 0 %}
+
+<style>
+  .mt-100 {
+    margin-top: 100px
+  }
+  
+  .card {
+    margin-bottom: 30px;
+    border: 0;
+    -webkit-transition: all .3s ease;
+    transition: all .3s ease;
+    letter-spacing: .5px;
+    border-radius: 8px;
+    -webkit-box-shadow: 1px 5px 24px 0 rgba(68, 102, 242, .05);
+    box-shadow: 1px 5px 24px 0 rgba(68, 102, 242, .05)
+  }
+  
+  .card .card-header {
+    background-color: #fff;
+    border-bottom: none;
+    padding: 24px;
+    border-bottom: 1px solid #f6f7fb;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px
+  }
+  
+  .card-header:first-child {
+    border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0
+  }
+  
+  .card .card-body {
+    padding: 30px;
+    background-color: transparent
+  }
+  
+  .btn-primary,
+  .btn-primary.disabled,
+  .btn-primary:disabled {
+    background-color: #4466f2 !important;
+    border-color: #4466f2 !important
+  }
+  </style>
+  <div class="container-fluid mt-100">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                
+                <div class="card-body cart">
+                    <div class="col-sm-12 empty-cart-cls text-center"> <img src="https://i.imgur.com/dCdflKN.png" width="130" height="130" class="img-fluid mb-4 mr-3">
+                        <h3><strong>Your Cart is Empty</strong></h3>
+                        <h4>Add something to make me happy :)</h4> <a href="/home/" class="btn btn-primary cart-btn-transform m-3" data-abc="true">continue shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+
+{% else %}
+
+<div class="px-4 px-lg-0">
+  <div class="pb-5" style="padding-top:8rem !important">
+    <div style="margin-left: 20rem; font-size: 1.5rem;" class="container">
+      <div class="row">
+        <div class="col-lg-12 p-5 bg-white rounded shadow-sm mb-5">
+          
+          <!-- Shopping cart table -->
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col" class="border-0 bg-light">
+                    <div class="p-2 px-3 text-uppercase">Product</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div class="py-2 text-uppercase">Price</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div class="py-2 text-uppercase">Quantity</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div class="py-2 text-uppercase">Totalprice</div>
+                  </th>
+                  <th scope="col" class="border-0 bg-light">
+                    <div class="py-2 text-uppercase">Remove</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                 {% for item in cart_data %}
+                <tr>
+                  <th scope="row" class="border-0">
+                    <div class="p-2">
+                      <img src="{{item.product.ImageURL}}" alt="" width="70" class="img-fluid rounded shadow-sm">
+                      <div class="ml-3 d-inline-block align-middle">
+                        <h5 class="mb-0"> <a href="#" class="text-dark d-inline-block align-middle">{{item.product.productname}}</a></h5><span class="text-muted font-weight-normal font-italic d-block">Category: {{item.product.category.categoryname}}</span>
+                      </div>
+                    </div>
+                  </th>
+                  <td class="border-0 align-middle"><strong id="price">{{item.product.price}}</strong></td>
+                  <td class="pt-5">
+                    <div class="def-number-input number-input safari_only mb-0">
+                      <form method="POST">
+                        {% csrf_token %}
+                      <button type="button" id="minus{{item.id}}" onclick="this.parentNode.querySelector('input[type=number]').stepDown();minus('{{item.id}}')" class="minus">-</button>
+                      <input class="quantity" id="qty{{item.id}}" min="1" name="quantity" value="{{item.quantity}}" type="number" style="width:13%" size="2" disabled autocomplete="off">
+                      <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp();plus('{{item.id}}') "  class="plus">+</button>
+                    </form>
+                    </div>
+                    <!-- <strong>{{item.quantity}}</strong> -->
+                  </td>
+                  <td class="border-0 align-middle"><strong id="output{{item.id}}">{{item.totalprice}}</strong></td>
+                  <td class="border-0 align-middle"><a href="/delete_item/{{item.id}}"><button style="border-style: none;" class="text-dark"><i class="fa fa-trash"></i></button></a></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <!-- End -->
+        </div>
+      </div>
+
+      <div class="row py-5 p-4 bg-white rounded shadow-sm">
+       
+        <div class="col-lg-7 ml-auto">
+          <div class="bg-light rounded-pill px-4 py-3 text-uppercase font-weight-bold">Order summary </div>
+          <div class="p-4">
+           <p class="font-italic mb-4">Shipping and additional costs are calculated based on values you have entered.</p> 
+            <ul class="list-unstyled mb-4">
+              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Order Subtotal </strong><strong>₹. <span id="subtotal" class="totalPrice">{{grandtotal}}</span></strong></li>
+              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Shipping and handling</strong><strong>₹.00</strong></li>
+              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Tax</strong><strong>₹. 00</strong></li>
+              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Total</strong>
+                <h5 class="font-weight-bold">₹. <span id="grandtotal" class="totalPrice">{{grandtotal}}</span></h5>
+              </li>
+            </ul><a href="/show_address/" class="btn btn-dark rounded-pill py-2 btn-block">Procceed to checkout</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script>
+  $(document).ready(function(){
+    {% for message in messages %}
+  alert('{{message}}')
+  {% endfor %}
+
+{% for item in cart_data%}
+  var quantity =  parseInt($('#qty{{item.id}}').val());
+  if (quantity <= 1)
+    {
+      $('#minus{{item.id}}').prop('disabled', true);
+    }
+    else{
+      $('#minus{{item.id}}').prop('disabled', false);
+    }
+    {% endfor %}
+  });
+ 
+
+  function plus(plusid){
+    let quantity =  parseInt($('#qty'+plusid).val());
+    console.log(quantity)
+    if (quantity <= 1)
+    {
+      $('#minus'+ plusid).prop('disabled', true);
+    }
+    else{
+      $('#minus'+ plusid).prop('disabled', false);
+    }
+    data={
+      "id":plusid,
+      "value": "add",
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+    }
+
+    $.ajax({
+          url : '/cart_edit/',
+          type: "POST",
+          data : data,
+          dataType : "json",
+          success: function( data ){
+            if (data.status == 1)  {
+            let  total = parseInt(data.total) 
+            let grandtotal = parseInt(data.grandtotal)
+            console.log(total)
+            $('#output'+plusid).html(total)
+            $('#subtotal').html(grandtotal)
+            $('#grandtotal').html(grandtotal)
+            }
+            else{
+              $('#qty'+plusid).val(quantity-1)
+              alert('selected quantity is not available for this product ')
+            }
+
+          }
+      });
+  }
+
+  function minus(minusid){
+    let quantity =  parseInt($('#qty'+minusid).val());
+    console.log(quantity)
+    if (quantity <= 1)
+    {
+      $('#minus'+ minusid).prop('disabled', true);
+    }
+    else{
+      $('#minus'+ minusid).prop('disabled', false);
+    }
+
+    data={
+      "id":minusid,
+      "value": "sub",
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+    }
+
+    $.ajax({
+          url : '/cart_edit/',
+          type: "POST",
+          data : data,
+          dataType : "json",
+          success: function( data ){
+            let  total = parseInt(data.total) 
+            let grandtotal = parseInt(data.grandtotal)
+            console.log(total)           
+            $('#output'+minusid).html(total)
+            $('#subtotal').html(grandtotal)
+            $('#grandtotal').html(grandtotal)
+            if (quantity <= 1)
+    {
+      $('#minus'+ minusid).prop('disabled', true);
+    }
+    else{
+      $('#minus'+ minusid).prop('disabled', false);
+    }
+
+
+          }
+      });
+  }
+
+</script>
+{%endblock%}

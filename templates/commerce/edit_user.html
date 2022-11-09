@@ -1,0 +1,128 @@
+{% extends 'commerce/base_admin.html'%} 
+
+{%block title%} Create User {%endblock%}
+
+
+{% block head %}
+<link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+{% endblock %} 
+
+{% block css%}
+<style>
+body {
+    background: lightgrey
+}
+
+.main {
+    background-color: #fff
+}
+
+.mycol {
+    padding-left: 0;
+    padding-right: 0
+}
+
+.xcol {
+    padding-left: 50px;
+    padding-right: 50px
+}
+
+.title {
+    font-weight: bold;
+    color: #ff39c2
+}
+
+.btn {
+    background-color: #6200EA;
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 0
+}
+
+.btn span {
+    font-size: 15px;
+    font-weight: bold
+}
+
+
+
+.form-control {
+    border: none;
+    box-shadow: 0px 0.1px 0px 0px #dae0e5;
+    border-radius: 0
+}
+
+.jk,
+.lm {
+    box-shadow: 0px 0.5px 0px 0px #dae0e5 !important
+}
+
+.form-control input [type="text"],
+.form-control input [type="email"],
+.form-control input [type="password"] {
+    color: black
+}
+
+.form-control:focus {
+    outline: 0;
+    box-shadow: 0px 0.5px 0px 0px #dae0e5 !important
+}
+
+.form-control-placeholder {
+    position: absolute;
+    top: 0;
+    padding: 7px 0 0 0;
+    transition: all 300ms;
+    opacity: 0.5
+}
+
+.form-control:focus+.form-control-placeholder,
+.form-control:valid+.form-control-placeholder {
+    font-size: 80% !important;
+    transform: translate3d(0, -100%, 0) !important;
+    opacity: 1 !important
+}
+</style>
+ {% endblock %}
+
+
+{% block content%}
+<div class="container d-flex justify-content-center my-5">
+    <div class="row my-2 mx-2 main">
+        <!--left-column-->
+        <div class="col-md-4 col-12 mycol">
+            <!--image--> <img src="https://cdn2.iconfinder.com/data/icons/flat-style-svg-icons-part-2/512/add_user_group-512.png" width="100%" height="100%"> </div>
+        <!--right-column-->
+        <div class="col-md-8 col-12 xcol">
+            <h2 class="title pt-5 pb-3">Edit User</h2>
+            <form method="POST" action="/update_user/{{user_data.id}}" class="myform">
+                {% csrf_token %}
+                <div class="row rone">
+                    <div class="form-group col-md-6 fone py-3"> <input type="text" name="name" class="form-control" value = "{{user_data.first_name}}" placeholder="FullName">  </div>
+                    <div class="form-group col-md-6 ftwo py-3"> <input type="email" name="email" value = "{{user_data.email}}" class="form-control" placeholder="Email"> </div>
+                </div>
+                <div class="row rtwo">
+                    
+                </div>
+                <div class="row rthree">
+                    <div class="form-group col-md-6 ffive py-3"> <input type="text" name="username" class="form-control" value = "{{user_data.username}}" placeholder="Username"></div>
+                    <div class="form-group col-md-6 fsix py-3"><input type="text" class="form-control" value = "{{user_data.last_name}}" name="mobile" placeholder="Mobile Number"> </div>
+                </div>
+                <div class="row rfour">
+        
+                    <div class="form-group col-md-6 ften py-3"> <button type="submit" class="btn btn-primary"><span>Update</span></button></div>
+                </div>
+                <div class="row rfive">
+                 <div class="form-group col-md-6 feleven py-3">  </div>
+                </div>
+               
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

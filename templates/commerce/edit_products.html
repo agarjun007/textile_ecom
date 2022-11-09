@@ -1,0 +1,146 @@
+{% extends 'commerce/base_admin.html'%} 
+
+{%block title%} Edit Product {%endblock%}
+
+
+{% block head %}
+<link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+{% endblock %} 
+
+{% block css%}
+<style>
+body {
+    background: lightgrey
+}
+
+.main {
+    background-color: #fff
+}
+
+.mycol {
+    padding-left: 0;
+    padding-right: 0
+}
+
+.xcol {
+    padding-left: 50px;
+    padding-right: 50px
+}
+
+.title {
+    font-weight: bold;
+    color: #ff39c2
+}
+
+.btn {
+    background-color: #6200EA;
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 0
+}
+
+.btn span {
+    font-size: 15px;
+    font-weight: bold
+}
+
+
+
+.form-control {
+    border: none;
+    box-shadow: 0px 0.1px 0px 0px #dae0e5;
+    border-radius: 0
+}
+
+.jk,
+.lm {
+    box-shadow: 0px 0.5px 0px 0px #dae0e5 !important
+}
+
+.form-control input [type="text"],
+.form-control input [type="email"],
+.form-control input [type="password"] {
+    color: black
+}
+
+.form-control:focus {
+    outline: 0;
+    box-shadow: 0px 0.5px 0px 0px #dae0e5 !important
+}
+
+.form-control-placeholder {
+    position: absolute;
+    top: 0;
+    padding: 7px 0 0 0;
+    transition: all 300ms;
+    opacity: 0.5
+}
+
+.form-control:focus+.form-control-placeholder,
+.form-control:valid+.form-control-placeholder {
+    font-size: 80% !important;
+    transform: translate3d(0, -100%, 0) !important;
+    opacity: 1 !important
+}
+</style>
+ {% endblock %}
+
+
+{% block content%}
+<div class="container d-flex justify-content-center my-5">
+    <div class="row my-2 mx-2 main">
+        <!--left-column-->
+        <div class="col-md-4 col-12 mycol">
+            <!--image--> <img src="https://www.olympicsports.co.in/images/2-Sports-Products.jpg" width="100%" height="100%"> </div>
+        <!--right-column-->
+        <div class="col-md-8 col-12 xcol">
+            <h2 class="title pt-5 pb-3">Edit Products</h2>
+            <form method="POST" enctype="multipart/form-data" action="/update_products/{{product_data.id}}"class="myform">
+                {% csrf_token %}
+                <div class="row rone">
+                    <div class="form-group col-md-6 fone py-3"> <label>Category</label>
+                        <select name="category"class="form-control">
+                            <option value="{{product_data.category.id}}">{{product_data.category.categoryname}}</option>
+                            {% for x in category_data %}
+                            <option value="{{x.id}}">{{x.categoryname}}</option>
+                            {% endfor %}
+                        </select> </div>
+                    <div class="form-group col-md-6 ftwo py-3"> <input type="text" name="productname" class="form-control" placeholder="Product name" value="{{product_data.productname}}"> </div>
+                </div>
+                <div class="row rtwo">
+                    <div class="form-group col-md-6 fthree py-3"> <textarea class="form-control jk" name="productdesc" placeholder="Product Description" id="" cols="10" rows="5">{{product_data.productdesc}}</textarea> </div>
+                    <div class="form-group col-md-6 ffour py-3"> <input type="number" name="price" class="form-control lm" placeholder="Price" value="{{product_data.price}}"> </div>
+                </div>
+                <div class="row rthree">
+                    <div class="form-group col-md-6 ffive py-3"> <input type="number" name="quantity" class="form-control" placeholder="Quantity" value="{{product_data.Quantity}}"> 
+                        <select name="unit"class="form-control" style="width: 10rem;">
+                            <option value="{{product_data.unit}}">{{product_data.unit}}</option>
+                            <option value="No.s">No.s</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Liters">Liters </option>
+                           </select> 
+                    </div>
+                    <div class="form-group col-md-6 fsix py-3"> <label>Product Image</label><input type="file" name="productimage"onchange="viewImage(event)" > </div>
+                </div>
+                <div class="row rfour" style="margin-top: -40px;">
+                    <div class="form-group col-md-6 fseven py-3"> <a href="/update_products/{{product_data.id}}>"><button type="submit" class="btn btn-primary"><span>Update Product</span></button></a> </div>
+                    <div class="form-group col-md-6 feight py-3"> <div class="form-group col-md-6 feight py-3"><img src="{{product_data.ImageURL}}" id="imageview" style="height: 100px;width: 100px;">
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function viewImage(event){
+    document.getElementById('imageview').src = URL.createObjectURL(event.target.files[0])
+}
+</script>
+
+{% endblock %} 

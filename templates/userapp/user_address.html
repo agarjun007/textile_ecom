@@ -1,0 +1,56 @@
+{% extends 'userapp/base_user.html' %}
+
+  {% block title %} cart {% endblock %}
+{% load static %}
+{%block head%}
+
+
+
+{%endblock%}
+
+{% block category %} 
+<div class="dropdown">
+  <button class="dropbtn"style="padding-left: 40px;"><h4 style="padding-top: 7px;">Categories<i style="padding-left: 5px;;" class="fa fa-caret-down"></i></h4>
+    
+  </button>
+  <div class="dropdown-content">
+    {% for x in category_data%}
+    <a href="/category/{{x.id}}">{{x.categoryname}}</a>
+    {% endfor %}
+    
+  </div>
+</div> 
+{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+  background: #97cfe5;
+  background: -webkit-linear-gradient(to right, #dad6d1, #dbd5e6);
+  background:linear-gradient(to right, #fefeff, #b5c1d4);
+    min-height: 100vh;
+}
+
+</style>
+{% endblock %}
+{% block address%}
+  <div class="row-container" style="font-size: medium; margin-top: 10rem; margin-left: 5rem;">
+    <h3 style="font-weight: bold; padding-bottom: 2rem;"> Choose a Delivery Address &nbsp;
+         <a href="/create_address/"><button class="btn btn-success">ADD New Address</button></h3></a>
+    
+    {% for  address in address%}
+    <div class="col-sm-3 pt-4">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">{{address.name}}</h3><br>
+          <h5 class="card-title">{{address.email}}</h5>
+          <p class="card-text">{{address.address}}<br>{{address.city}}<br>{{address.state}}<br>{{address.pincode}}</p>
+          <a href="/user_payment/{{address.id}}" class="btn btn-primary btn-lg">Deliver to this Address</a>
+          <a href="/edit_address/{{address.id}}"class="btn btn-warning btn-lg">Edit Address</a>
+        </div>
+      </div>
+    </div>
+    {%endfor%}
+
+{% endblock %}
