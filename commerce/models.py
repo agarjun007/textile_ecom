@@ -46,7 +46,8 @@ class ProductBatch(models.Model):
     price = models.IntegerField()
     quantity = models.IntegerField()
     unit = models.CharField(max_length=20,null=True) #eg: no.s 
-    status = models.IntegerField(db_column="status", default=ACTIVE)
+    default = models.BooleanField(default=True)
+    status = models.IntegerField(default=ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
     updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
