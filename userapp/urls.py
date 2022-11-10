@@ -19,13 +19,6 @@ urlpatterns = [
     path('user_profile/', views.user_profile, name='userprofile'),
     path('user_cart/<int:id>', views.user_cart, name='usercart'),
     path('cart_edit/', views.cart_edit, name='cartedit'),
-    path('show_address/', views.show_address, name='showaddress'),
-    path('create_address/', views.create_address, name='createaddress'),
-    path('edit_address/<int:id>', views.edit_address, name='editaddress'),
-    path('user_order_history/', views.user_order_history, name='userorderhistory'),
-    path('user_payment/<int:id>', views.user_payment, name='userpayment'),
-    path('paypal_payment/', views.paypl_payment, name='paypalpayment'),
-    path('razorpay_payment/', views.razorpay_payment, name='razorpaypayment'),
     path('user_logout/', views.user_logout, name='userlogout'),
 
 ]

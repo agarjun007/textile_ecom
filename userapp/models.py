@@ -28,19 +28,6 @@ class Address(models.Model):
     pincode = models.IntegerField()
 
 
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE, null=True, blank=True)
-    product = models.ForeignKey(products, on_delete=models.CASCADE, null=True, blank=True)
-    quantity = models.IntegerField(null=True, blank=True)
-    totalprice = models.IntegerField(null=True, blank=True)
-    tid = models.CharField(max_length=200, null=True, blank=True)
-    tdate = models.DateField(null=True, blank=True)
-    payment_status = models.CharField(max_length=50, null=True, blank=True)
-    order_status = models.CharField(max_length=50, null=True, blank=True)
-    payment_mode = models.CharField(max_length=50, null=True, blank=True)
-
-
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     product = models.ForeignKey(products, on_delete=models.CASCADE, null=True, blank=True)
