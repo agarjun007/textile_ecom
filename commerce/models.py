@@ -8,8 +8,8 @@ INACTIVE,ACTIVE = 0,1
 class Category(models.Model):
     categoryname = models.CharField(max_length=50)
     status = models.IntegerField(db_column="status", default=ACTIVE)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
+    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at", blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
 
 class products(models.Model):
@@ -17,23 +17,23 @@ class products(models.Model):
     productname = models.CharField(max_length=20)
     productdesc = models.TextField(max_length=5000)
     status = models.IntegerField(db_column="status", default=ACTIVE)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
+    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at", blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
 
 class Size(models.Model):
     name = models.CharField(max_length=20) #eg: M/XL/XXL/XXXL/34/36,38,40
     status = models.IntegerField(db_column="status", default=ACTIVE)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
+    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at", blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
 
 class Color(models.Model):
     name = models.CharField(max_length=20) # eg: black
     color_code = models.CharField(max_length=15) #eg: #00000F
     status = models.IntegerField(db_column="status", default=ACTIVE)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
+    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at", blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
             
 
@@ -48,8 +48,8 @@ class ProductBatch(models.Model):
     unit = models.CharField(max_length=20,null=True) #eg: no.s 
     default = models.BooleanField(default=True)
     status = models.IntegerField(default=ACTIVE)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
+    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at", blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
 
     @property
@@ -64,8 +64,8 @@ class ProductImages(models.Model):
     product_batch = models.ForeignKey(ProductBatch,on_delete=models.DO_NOTHING,related_name='images')
     productimage = models.ImageField(null=True, blank=True)
     status = models.IntegerField(db_column="status", default=ACTIVE)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
+    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at", blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
 
     @property

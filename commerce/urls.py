@@ -20,6 +20,14 @@ urlpatterns = [
     path('update_category/<int:id>', views.update_category, name='updatecategory'),
     path('delete_category/<int:id>', views.delete_category, name='deletecategory'),
 
+    path('adminpanel_colors/', views.admin_panel_colors, name='adminpanelcolors'),
+    path('color_validate/', views.color_validate, name='createcolor'),
+    path('color_validate/<int:id>', views.color_validate, name='editcolor'),
+
+    path('adminpanel_sizes/', views.admin_panel_sizes, name='adminpanelsizes'),
+    path('size_validate/', views.size_validate, name='createsize'),
+    path('size_validate/<int:id>', views.size_validate, name='editsize'),
+
     path('adminpanel_products/', views.admin_panel_products, name='adminpanelproducts'),
     path('create_products/', views.create_products, name='createproducts'),
     path('edit_products/<int:id>', views.edit_products, name='editproducts'),

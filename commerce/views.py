@@ -34,18 +34,18 @@ def admin_panel(request):
     if request.session.has_key('password'):
         user = User.objects.all()
         product = products.objects.all()
-        order = Order.objects.all()
-        order_collection = {}
-        for order in order:
-            if not order.tid in order_collection.keys():
-                order_collection[order.tid] = order
-        length_order = len(order_collection)
+        # order = Order.objects.all()
+        # order_collection = {}
+        # for order in order:
+        #     if not order.tid in order_collection.keys():
+        #         order_collection[order.tid] = order
+        # length_order = len(order_collection)
         length_user = len(user)
-        length_product = len(product)
-        data = [length_product, length_user, length_order]
+        length_product = len(product) 
+        data = [length_product, length_user]
         return render(request, 'commerce/admin_panel.html',
                       {'table_data': user, 'length_user': length_user, 'length_product': length_product,
-                       'length_order': length_order, 'data': data})
+                       'length_order': None, 'data': data})
     else:
         return redirect(admin_login)
 
@@ -103,6 +103,69 @@ def update_category(request, id):
     else:
         return redirect(admin_login)
 
+def admin_panel_colors(request):
+    if request.session.has_key('password'):
+        colors = Color.objects.all()
+        return render(request, 'commerce/adminpanel_color.html', {'table_data': colors})
+    else:
+        return redirect(admin_login)
+
+def color_validate(request, id=None):
+    if request.session.has_key('password'):
+        if id:
+            color = Color.objects.get(id=id)
+            if request.method == "POST":
+                color_name = request.POST['colorname']
+                code = request.POST['code']
+                color.name = color_name
+                color.color_code = code
+                color.save()
+                return redirect(admin_panel_colors)
+            else:
+                return render(request, 'commerce/color_validate.html',{'color':color})
+        else:
+            if request.method == "POST":
+                color = Color()
+                color_name = request.POST['colorname']
+                code = request.POST['code']
+                color.name = color_name
+                color.color_code = code
+                color.save()
+                return redirect(admin_panel_colors)
+            else:
+                return render(request, 'commerce/color_validate.html')
+    else:
+        return redirect(admin_login)
+
+def admin_panel_sizes(request):
+    if request.session.has_key('password'):
+        sizes = Size.objects.all()
+        return render(request, 'commerce/adminpanel_size.html', {'table_data': sizes})
+    else:
+        return redirect(admin_login)
+
+def size_validate(request, id=None):
+    if request.session.has_key('password'):
+        if id:
+            size = Size.objects.get(id=id)
+            if request.method == "POST":
+                size_name = request.POST['sizename']
+                size.name = size_name
+                size.save()
+                return redirect(admin_panel_sizes)
+            else:
+                return render(request, 'commerce/size_validate.html',{'size':size})
+        else:
+            if request.method == "POST":
+                size = Size()
+                size_name = request.POST['sizename']
+                size.name = size_name
+                size.save()
+                return redirect(admin_panel_sizes)
+            else:
+                return render(request, 'commerce/size_validate.html')
+    else:
+        return redirect(admin_login)
 
 def delete_category(request, id):
     if request.session.has_key('password'):
@@ -139,7 +202,7 @@ def create_products(request):
             product = products.objects.create(category=category_data, productname=product_name,
                                               productdesc=product_desc, price=price, Quantity=quantity,
                                               productimage=img_decoded, unit=unit)
-            product.save();
+            product.save()
             messages.info(request, "Product created successfully..")
             return redirect(create_products)
         else:
