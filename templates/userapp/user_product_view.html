@@ -256,7 +256,7 @@ body {
         <div class="preview col-md-6">
           
           <div class="preview-pic tab-content">
-            <div class="tab-pane active" id="pic-1"><img class="demo-trigger" src="{{product_data.ImageURL}}" data-zoom="{{product_data.ImageURL}}"> </div>
+            <div class="tab-pane active" id="pic-1"><img class="demo-trigger" style="height:200px ; width:150px;" src="{{product_data.ImageURL}}" data-zoom="{{product_data.ImageURL}}"> </div>
             <!-- <div class="tab-pane" id="pic-2"><img src="{{product_data.ImageURL}}" /></div>
             <div class="tab-pane" id="pic-3"><img src="{{product_data.ImageURL}}" /></div>
             <div class="tab-pane" id="pic-4"><img src="{{product_data.ImageURL}}" /></div>
@@ -283,25 +283,40 @@ body {
             </div>
             <span class="review-no">41 reviews</span>
           </div>
-          <p class="product-description">{{product_data.productdesc}}</p>
+          <p class="product-description">{{product_data.product.productdesc}}</p>
           <h4 class="price">current price: <span>₹{{product_data.price}}</span></h4>
           <p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87 votes)</strong></p>
-          <h5 class="sizes">sizes:
-            <span class="size" data-toggle="tooltip" title="small">s</span>
-            <span class="size" data-toggle="tooltip" title="medium">m</span>
-            <span class="size" data-toggle="tooltip" title="large">l</span>
-            <span class="size" data-toggle="tooltip" title="xtra large">xl</span>
+          <form novalidate action="/user_cart/{{product_data.product.id}}" method="post">
+         {%csrf_token%}
+         <h5 class="emb">Embroidery:
+          <input type="radio" name="embroidery" id="has_emb" checked value="0">
+          <label for="has_emb">No</label>
+          <input type="radio" name="embroidery" id="no_emb" value="1">
+          <label for="no_emb">Yes</label>
+            <h5 class="sizes">sizes:
+            <select name="size" id="size" class="form-control" >
+              {%for size in sizes%}
+              <option value="{{size.id}}" >{{size.name}}</option>
+              {% endfor %}
+          </select>
+            
           </h5>
           <h5 class="colors">colors:
-            <span class="color orange not-available" data-toggle="tooltip" title="Not In store"></span>
-            <span class="color green"></span>
-            <span class="color blue"></span>
+            <select name="color" id="color" class="form-control" >
+              {%for color in colors%}
+              <option value="{{color.id}}" >{{color.name}}</option>
+              {% endfor %}
+            </select>
+           
           </h5>
           <div class="action">
-            <a href="/user_cart/{{product_data.id}}"><button class="add-to-cart btn btn-default" type="button">add to cart</button></a>
-            <button class="like btn btn-default" type="button"><span class="fa fa-heart"></span></button>
+           <button class="add-to-cart btn btn-default" type="submit">add to cart</button>
+            <!-- <button class="like btn btn-default" type="button"><span class="fa fa-heart"></span></button> -->
           </div>
+        </form>
+
         </div>
+      
       </div>
     </div>
   </div>

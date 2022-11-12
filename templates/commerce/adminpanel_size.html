@@ -9,7 +9,7 @@
 <div class="container-xl">
     <div class="table-responsive">
         <div style="padding-left: 15rem; display: flex; justify-content: flex-end;
-        padding-top: 3rem;"> <a href="/size_validate/"><button type="button" class="btn btn-success btn-sm">ADD Size</button></a>
+        padding-top: 3rem;"> <a href="{%url 'create_size'%}"><button type="button" class="btn btn-success btn-sm">ADD Size</button></a>
 
         </div>
         <div class="table-wrapper">
@@ -36,7 +36,7 @@
                         <td>{{x.name}}</td>   
                         
                         <td>
-                           <a href="/size_validate/{{x.id}}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                           <a href="{% url 'edit_size' x.id %}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
                             <!-- <a href="/color_validate/{{x.id}}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.name}} ?')" class="material-icons">&#xE872;</i></a> -->
                         </td>
                     </tr>

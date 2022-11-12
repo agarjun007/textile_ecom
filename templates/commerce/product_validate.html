@@ -1,0 +1,232 @@
+{% extends 'commerce/base_admin.html'%} 
+
+{%block title%} Product Form {%endblock%}
+
+
+{% block head %}
+<link href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+{% endblock %} 
+
+{% block css%}
+<style>
+body {
+    background: lightgrey
+}
+
+.main {
+    background-color: #fff
+}
+
+.mycol {
+    padding-left: 0;
+    padding-right: 0
+}
+
+.xcol {
+    padding-left: 50px;
+    padding-right: 50px
+}
+
+.title {
+    font-weight: bold;
+    color: #ff39c2
+}
+
+.btn {
+    background-color: #6200EA;
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 0
+}
+
+.btn span {
+    font-size: 15px;
+    font-weight: bold
+}
+
+
+
+.form-control {
+    border: none;
+    box-shadow: 0px 0.1px 0px 0px #dae0e5;
+    border-radius: 0
+}
+
+.jk,
+.lm {
+    box-shadow: 0px 0.5px 0px 0px #dae0e5 !important
+}
+
+.form-control input [type="text"],
+.form-control input [type="email"],
+.form-control input [type="password"] {
+    color: black
+}
+
+.form-control:focus {
+    outline: 0;
+    box-shadow: 0px 0.5px 0px 0px #dae0e5 !important
+}
+
+.form-control-placeholder {
+    position: absolute;
+    top: 0;
+    padding: 7px 0 0 0;
+    transition: all 300ms;
+    opacity: 0.5
+}
+
+.form-control:focus+.form-control-placeholder,
+.form-control:valid+.form-control-placeholder {
+    font-size: 80% !important;
+    transform: translate3d(0, -100%, 0) !important;
+    opacity: 1 !important
+}
+</style>
+ {% endblock %}
+
+
+{% block content%}
+<div class="container d-flex justify-content-center my-5">
+    <div class="row my-2 mx-2 main">
+        <!--right-column-->
+        <div class="col-md-12 xcol">
+            <h2 class="title pt-5 pb-3">Products</h2>
+            <form method="POST" novalidate enctype="multipart/form-data" action="{{request.get_full_path}}"class="myform">
+                {% csrf_token %}
+                <input type="radio" id="parent_prod" name="prod_type" checked value="0">
+  <label for="parent_prod"> Parent Product</label>
+  <input type="radio" id="sub_prod" name="prod_type" value="1">
+  <label for="sub_prod"> Sub Product</label>
+                <div class="row rone">
+                    <div class="form-group col-md-5 fone py-3"> 
+                        <select name="category" {%if product_data.product%} style="display: none;" {%endif%} id="category" class="form-control" >
+                            <option value="0" >-choose Category-</option>
+                            {% for x in category_data %}
+                            <option value="{{x.id}}" {%if product_data.category.id == x.id%} selected {%endif%}>{{x.categoryname}}</option>
+                            {% endfor %}
+                        </select>
+                        <select {%if product_data.product%} style="display: block;" {%else%}style="display: none;" {%endif%}  name="parent_product" id="parent_product" class="form-control" >
+                            <option value="0" >-choose Parent-</option>
+                            {% for x in products_data %}
+                            <option value="{{x.id}}" {%if product_data.product.id == x.id%} selected {%endif%}>{{x.productname}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                        <div class="form-group col-md-4 ftwo py-3">
+                            <input type="text" name="productname" class="form-control" value="{{product_data.product.productname}}" placeholder="Product name" required> 
+                           </div>
+                            <div class="form-group col-md-3 ffive py-3">
+                               <select name="size"class="form-control" required style="width: 10rem;">
+                                   <option >-choose size-</option>
+                                   {% for x in size_data %}
+                            <option value="{{x.id}}" {%if product_data.size.id == x.id%} selected {%endif%}>{{x.name}}</option>
+                            {% endfor %}
+                              
+                                  </select>            
+                                </div>
+                </div>
+               
+                <div class="row rtwo">
+                    <div class="form-group col-md-4 ffive py-3">
+                        <select name="color"class="form-control" required style="width: 10rem;">
+                            <option >-choose color-</option>
+                            {% for x in color_data %}
+                            <option value="{{x.id}}" {%if product_data.color.id == x.id%} selected {%endif%}>{{x.name}}</option>
+                            {% endfor %}
+                       
+                           </select>            
+                         </div>  
+                         <div class="form-group col-md-4 ffive py-3">
+                            <select name="unit"class="form-control" required style="width: 10rem;">
+                                <option >-choose unit-</option>
+                                <option value="No.s" {%if product_data.unit == 'No.s'%} selected {%endif%}>No.s</option>
+                           
+                               </select>            
+                             </div>     
+                                  
+                    <div class="form-group col-md-3 ffive py-3">
+                        <input type="number" name="quantity" min="1" class="form-control" value="{{product_data.quantity}}" placeholder="Quantity" style="width: 7rem;"  required> 
+                        </div>
+
+                </div>
+               
+                <div class="row rthree">
+                    
+                       
+                    <div class="form-group col-md-4 ffour py-3"> 
+                    <input type="number" name="price" min="1" class="form-control lm" placeholder="Price" value="{{product_data.price}}" required>
+                 </div> 
+
+                 <div class="form-group col-md-4 ffive py-3">
+                 <p>Embroidery </p> 
+                      <input type="radio" id="hasEmb" {%if product_data.embroidery%} checked{%endif%} name="embroidery" value="1">
+                      <label for="yes">Yes</label>
+                      <input type="radio" id="noEmb" {%if not product_data.embroidery%} checked{%endif%} name="embroidery" value="0">
+                      <label for="no">No</label>
+                    </div> 
+                    <div class="form-group col-md-4 ffive py-3 embPriceDiv" {%if product_data.embroidery%} style="display:block;" {%else%}style="display:none;"{%endif%}>
+                    <input type="number" name="emb_price" id="emb_price" min="1" value="{{product_data.emb_price}}" class="form-control lm" placeholder="Emb Price">
+                </div>        
+                
+                </div>
+               
+                <div class="row rfour">
+                    <div class="form-group col-md-6 fsix py-3">
+                        <label>Product Image</label><input type="file" name="productimage" onchange="viewImage(event)" >
+                    </div>
+                    <div class="form-group col-md-6 fthree py-3"> 
+                        <textarea class="form-control jk" name="productdesc" placeholder="Product Description"  required id="" cols="10" rows="5"> {{product_data.product.productdesc}}</textarea> </div>
+                </div>
+
+                <div class="row rfive" style="margin-top: -40px;">
+                    <div class="form-group col-md-6 fseven py-3"> <button type="submit" class="btn btn-primary"><span>Submit</span></button> </div>
+                    <div class="form-group col-md-6 feight py-3"> <div class="form-group col-md-6 feight py-3"><img src="{{product_data.ImageURL}}" id="imageview" {%if product_data.ImageURL != ''%} style="display: block;height: 100px;width: 100px;"{%else%}style="display: none;height: 100px;width: 100px;" {%endif%}>
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function viewImage(event){
+    $('#imageview').show();
+    document.getElementById('imageview').src = URL.createObjectURL(event.target.files[0])
+}
+$("input[name='prod_type']").on("change", function(){
+        console.log('ins');
+   if($('#parent_prod').is(':checked')){
+    console.log('tru');
+    $("#category").show();
+    $("#category").prop('required',true);
+    $("#parent_product").hide();
+    $("#parent_product").prop('required',false);
+  } else {
+    console.log('fal');
+    $("#category").hide();
+    $("#category").prop('required',false);
+    $("#parent_product").show();
+    $("#parent_product").prop('required',true);
+  }
+});
+$("input[name='embroidery']").on("change", function(){
+        console.log('ins');
+   if($('#hasEmb').is(':checked')){
+    console.log('tru');
+    $(".embPriceDiv").show();
+    $("#embPrice").prop('required',true);
+  } else {
+    console.log('fal');
+    $(".embPriceDiv").hide();
+    $("#embPrice").prop('required',false);
+  }
+});
+</script>
+
+{% endblock %} 

@@ -36,9 +36,9 @@ class Color(models.Model):
     updated_at = models.DateTimeField(auto_now=True, db_column="updated_at", blank=True, null=True)
     deleted_at = models.DateTimeField(db_column="deleted_at", blank=True, null=True)
             
-
+#Sub products
 class ProductBatch(models.Model):
-    product = models.ForeignKey(products,on_delete=models.CASCADE,related_name='batches')
+    product = models.ForeignKey(products,on_delete=models.CASCADE,related_name='batches',blank=True,null=True)
     size = models.ForeignKey(Size,on_delete=models.DO_NOTHING,related_name='batches')
     color = models.ForeignKey(Color,on_delete=models.DO_NOTHING, null=True, blank=True,related_name='batches')
     embroidery = models.BooleanField(default=False)
@@ -55,7 +55,7 @@ class ProductBatch(models.Model):
     @property
     def ImageURL(self):
         try:
-            url = self.productimage.url
+            url = self.images.filter(status=ACTIVE).first().ImageURL
         except:
             url = ''
         return url

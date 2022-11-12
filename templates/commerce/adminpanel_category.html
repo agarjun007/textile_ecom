@@ -9,7 +9,7 @@
 <div class="container-xl">
     <div class="table-responsive">
         <div style="padding-left: 15rem; display: flex; justify-content: flex-end;
-        padding-top: 3rem;"> <a href="/create_category/"><button type="button" class="btn btn-success btn-sm">ADD Category</button></a>
+        padding-top: 3rem;"> <a href="{%url 'create_category'%}"><button type="button" class="btn btn-success btn-sm">ADD Category</button></a>
 
         </div>
         <div class="table-wrapper">
@@ -38,8 +38,8 @@
                         <td>{{x.productcount}}</td>              
                         
                         <td>
-                           <a href="/edit_category/{{x.id}}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
-                            <a href="/delete_category/{{x.id}}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.categoryname}} ?')" class="material-icons">&#xE872;</i></a>
+                           <a href="{% url 'edit_category' x.id %}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                            <!-- <a href="/delete_category/{{x.id}}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.categoryname}} ?')" class="material-icons">&#xE872;</i></a> -->
                         </td>
                     </tr>
                        {% endfor %}  

@@ -30,5 +30,6 @@ class Address(models.Model):
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    product = models.ForeignKey(products, on_delete=models.CASCADE, null=True, blank=True)
+    product_batch = models.ForeignKey(ProductBatch, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
+    totalprice = models.IntegerField(null=True, blank=True, default=0)

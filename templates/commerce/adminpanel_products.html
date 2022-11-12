@@ -8,7 +8,7 @@
 <div class="container-xl">
   <div class="table-responsive">
     <div style="padding-left: 15rem; display: flex; justify-content: flex-end;
-    padding-top: 3rem;"> <a href="/create_products/"><button type="button" class="btn btn-success btn-sm">Add Product</button></a>
+    padding-top: 3rem;"> <a href="{%url 'create_product'%}"><button type="button" class="btn btn-success btn-sm">Add Product</button></a>
         
     </div>
       <div class="table-wrapper">
@@ -35,15 +35,15 @@
               {% for x in table_data %}
                   <tr>
                       <td>{{forloop.counter}}</td>
-                      <td>{{x.category.categoryname}}</td>
-                      <td>{{x.productname}}</td>
-                      <td>{{x.Quantity}}</td>
+                      <td>{{x.product.category.categoryname}}</td>
+                      <td>{{x.product.productname}}</td>
+                      <td>{{x.quantity}}</td>
                       <td>{{x.unit}}</td>
                       <td>{{x.price}}</td>
                       <td><img style="height: 50px;width: 60px;" src="{{x.ImageURL}}"></td>
                       <td>
-                          <a href="/edit_products/{{x.id}}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
-                          <a href="/delete_products/{{x.id}}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.productname}} ?')" class="material-icons">&#xE872;</i></a>
+                          <a href="{% url 'edit_product' x.id %}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                          <!-- <a href="/delete_products/{{x.id}}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.productname}} ?')" class="material-icons">&#xE872;</i></a> -->
                       </td>
                   </tr>
                      {% endfor %}  

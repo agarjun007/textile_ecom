@@ -69,37 +69,25 @@ def admin_panel_category(request):
         return redirect(admin_login)
 
 
-def create_category(request):
+def category_validate(request,id=None):
     if request.session.has_key('password'):
-        if request.method == 'POST':
-            category_name = request.POST['categoryname']
-            category = Category.objects.create(categoryname=category_name)
-            category.save();
-            return redirect(admin_panel_category)
-        else:
-            return render(request, 'commerce/create_category.html')
-    else:
-        return redirect(admin_login)
-
-
-def edit_category(request, id):
-    if request.session.has_key('password'):
-        category_data = Category.objects.get(id=id)
-        return render(request, 'commerce/edit_category.html', {'category_data': category_data})
-    else:
-        return redirect(admin_login)
-
-
-def update_category(request, id):
-    if request.session.has_key('password'):
-        if request.method == "POST":
-            category_name = request.POST['categoryname']
+        if id:                
             category = Category.objects.get(id=id)
-            category.categoryname = category_name
-            category.save()
-            return redirect(admin_panel_category)
+            if request.method == "POST":
+                category_name = request.POST['categoryname']
+                category.categoryname = category_name
+                category.save()
+                return redirect(admin_panel_category)
+            else:
+                return render(request, 'commerce/category_validate.html',{'category_data': category})
         else:
-            return render(request, 'commerce/edit_category.html')
+            if request.method == 'POST':
+                category_name = request.POST['categoryname']
+                Category.objects.get_or_create(categoryname=category_name)
+                return redirect(admin_panel_category)
+            else:
+                return render(request, 'commerce/category_validate.html')
+        
     else:
         return redirect(admin_login)
 
@@ -125,12 +113,9 @@ def color_validate(request, id=None):
                 return render(request, 'commerce/color_validate.html',{'color':color})
         else:
             if request.method == "POST":
-                color = Color()
                 color_name = request.POST['colorname']
                 code = request.POST['code']
-                color.name = color_name
-                color.color_code = code
-                color.save()
+                Color.objects.get_or_create(name = color_name,color_code = code)
                 return redirect(admin_panel_colors)
             else:
                 return render(request, 'commerce/color_validate.html')
@@ -157,10 +142,8 @@ def size_validate(request, id=None):
                 return render(request, 'commerce/size_validate.html',{'size':size})
         else:
             if request.method == "POST":
-                size = Size()
                 size_name = request.POST['sizename']
-                size.name = size_name
-                size.save()
+                Size.objects.get_or_create(name = size_name)
                 return redirect(admin_panel_sizes)
             else:
                 return render(request, 'commerce/size_validate.html')
@@ -178,77 +161,108 @@ def delete_category(request, id):
 
 def admin_panel_products(request):
     if request.session.has_key('password'):
-        product_data = products.objects.all()
+        product_data = ProductBatch.objects.all()
         return render(request, 'commerce/adminpanel_products.html', {'table_data': product_data})
     else:
         return redirect(admin_login)
 
-
-def create_products(request):
+def product_validate(request, id=None):
     if request.session.has_key('password'):
-        if request.method == 'POST':
-            category_data = Category.objects.get(id=request.POST['category'])
-            product_name = request.POST['productname']
-            product_desc = request.POST['productdesc']
-            price = request.POST['price']
-            quantity = request.POST['quantity']
-            unit = request.POST['unit']
-            image_data = request.POST['pro_img']
-            format, imgstr = image_data.split(';base64,')
-            ext = format.split('/')[-1]
-            print('formatttttt',ext)
-
-            img_decoded = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-            product = products.objects.create(category=category_data, productname=product_name,
-                                              productdesc=product_desc, price=price, Quantity=quantity,
-                                              productimage=img_decoded, unit=unit)
-            product.save()
-            messages.info(request, "Product created successfully..")
-            return redirect(create_products)
-        else:
-            category_data = Category.objects.all()
-            return render(request, 'commerce/create_products.html', {'category_data': category_data})
-    else:
-        return redirect(admin_login)
-
-
-def edit_products(request, id):
-    if request.session.has_key('password'):
-        product = products.objects.get(id=id)
+        sizes = Size.objects.all()
+        colors = Color.objects.all()
+        products_data = products.objects.all()
         category_data = Category.objects.all()
-        return render(request, 'commerce/edit_products.html', {'category_data': category_data,
-                                                               'product_data': product})
-    else:
-        return redirect(admin_login)
-
-
-def update_products(request, id):
-    if request.session.has_key('password'):
-        if request.method == "POST":
-            category = Category.objects.get(id=request.POST['category'])
-            product_name = request.POST['productname']
-            product_desc = request.POST['productdesc']
-            price = request.POST['price']
-            quantity = request.POST['quantity']
-            unit = request.POST['unit']
-            product = products.objects.get(id=id)
-            product.productname = product_name
-            product.category.categoryname = category.categoryname
-            product.productdesc = product_desc
-            product.price = price
-            product.Quantity = quantity
-            product.unit = unit
-            if 'productimage' not in request.POST:
-                product_image = request.FILES.get('productimage')
+        if id:
+            product_batch = ProductBatch.objects.get(id=id)
+            if request.method == "POST":
+                category_id = request.POST['category']
+                product_name = request.POST['productname']
+                product_desc = request.POST['productdesc']
+                price = request.POST['price']
+                quantity = request.POST['quantity']
+                parent_product = request.POST.get('parent_product')
+                unit = request.POST['unit']
+                size = request.POST['size']
+                color = request.POST['color']
+                embroidery = request.POST['embroidery']
+                if embroidery == '1':
+                    emb_price = request.POST['emb_price']
+                else:
+                    emb_price = 0
+                if parent_product == '0':
+                    default = True
+                    category = Category.objects.get(id=category_id)
+                    product = products.objects.create(productdesc = product_desc,productname = product_name,category = category)
+                else:
+                    default = True
+                    product = products.objects.get(id=parent_product)
+                product_batch.product = product
+                product_batch.embroidery = True if embroidery == '1' else False
+                product_batch.emb_price = emb_price
+                product_batch.default = default
+                product_batch.size_id = size
+                product_batch.color_id = color
+                product_batch.price = price
+                product_batch.quantity = quantity
+                product_batch.unit = unit
+                if 'productimage' in request.FILES:
+                    image,created = ProductImages.objects.get_or_create(product_batch = product_batch)
+                    image.productimage = request.FILES.get('productimage')
+                    image.save()
+                else:
+                    pass
+                product_batch.save()
+                return redirect(admin_panel_products)
             else:
-                product_image = product.productimage
-            product.productimage = product_image
-            product.save()
-
-            return redirect(admin_panel_products)
+                return render(request, 'commerce/product_validate.html',{'product_data':product_batch,
+                'size_data':sizes,'color_data':colors,'products_data':products_data,'category_data':category_data})
+        
         else:
-
-            return render(request, 'commerce/edit_products.html')
+            if request.method == "POST":
+                print(request.POST)
+                category_id = request.POST['category']
+                product_name = request.POST['productname']
+                product_desc = request.POST['productdesc']
+                price = request.POST['price']
+                quantity = request.POST['quantity']
+                parent_product = request.POST.get('parent_product','0')
+                unit = request.POST['unit']
+                size = request.POST['size']
+                color = request.POST['color']
+                embroidery = request.POST['embroidery']
+                if embroidery == '1':
+                    emb_price = request.POST['emb_price']
+                else:
+                    emb_price = 0
+                if parent_product == '0':
+                    default = True
+                    category = Category.objects.get(id=category_id)
+                    product = products.objects.create(productdesc = product_desc,productname = product_name,category = category)
+                else:
+                    default = False
+                    product = products.objects.get(id=parent_product)
+                product_batch = ProductBatch()
+                product_batch.product = product
+                product_batch.embroidery = True if embroidery == '1' else False
+                product_batch.emb_price = emb_price
+                product_batch.default = default
+                product_batch.size_id = size
+                product_batch.color_id = color
+                product_batch.price = price
+                product_batch.quantity = quantity
+                product_batch.unit = unit
+                product_batch.save()
+                if 'productimage' in request.FILES:
+                    image,created = ProductImages.objects.get_or_create(product_batch = product_batch)
+                    image.productimage = request.FILES.get('productimage')
+                    image.save()
+                else:
+                    pass
+    
+                return redirect(admin_panel_products)
+            else:
+                return render(request, 'commerce/product_validate.html',{'size_data':sizes,'color_data':colors,
+                'products_data':products_data,'category_data':category_data})
     else:
         return redirect(admin_login)
 
@@ -262,55 +276,44 @@ def delete_products(request, id):
         return redirect(admin_login)
 
 
-def create_user(request):
+def user_validate(request,id=None):
     if request.session.has_key('password'):
-        if request.method == 'POST':
-            name = request.POST['name']
-            username = request.POST['username']
-            email = request.POST['email']
-            password1 = request.POST['password']
-            password2 = request.POST['confirmpassword']
-            mobile = request.POST['mobile']
-
-            if password1 == password2:
-                if User.objects.filter(username=username).exists():
-                    return redirect('/create_user')
-                else:
-                    user = User.objects.create_user(first_name=name, username=username,
-                                                    email=email, password=password1, last_name=mobile)
-                    user.save();
-                messages.info(request, "User created successfully..")
-                return redirect('/adminpanel')
-            else:
-                return redirect('/create_user')
-        else:
-            return render(request, 'commerce/create_user.html')
-
-
-def edit_user(request, id):
-    if request.session.has_key('password'):
-        user = User.objects.get(id=id)
-        return render(request, 'commerce/edit_user.html', {'user_data': user})
-    else:
-        return redirect(admin_login)
-
-
-def update_user(request, id):
-    if request.session.has_key('password'):
-        if request.method == "POST":
-            name = request.POST['name']
-            username = request.POST['username']
-            email = request.POST['email']
-            mobile = request.POST['mobile']
+        if id:
             user = User.objects.get(id=id)
-            user.first_name = name
-            user.username = username
-            user.email = email
-            user.last_name = mobile
-            user.save()
-            return redirect(admin_panel)
+            if request.method == "POST":
+                name = request.POST['name']
+                # username = request.POST['username']
+                email = request.POST['email']
+                mobile = request.POST['mobile']
+                user.first_name = name
+                # user.username = username
+                user.email = email
+                user.last_name = mobile
+                user.save()
+                return redirect(admin_panel)
+            else:
+                return render(request, 'commerce/user_validate.html',{'user_data': user})
         else:
-            return render(request, 'commerce/edit_user.html')
+            if request.method == 'POST':
+                name = request.POST['name']
+                username = request.POST['username']
+                email = request.POST['email']
+                password1 = request.POST['password']
+                password2 = request.POST['confirmpassword']
+                mobile = request.POST['mobile']
+
+                if password1 == password2:
+                    if User.objects.filter(username=username).exists():
+                        return redirect('create_user')
+                    else:
+                        user = User.objects.create_user(first_name=name, username=username,
+                                                        email=email, password=password1, last_name=mobile)
+                    messages.info(request, "User created successfully..")
+                    return redirect('/adminpanel')
+                else:
+                    return redirect('create_user')
+            else:
+                return render(request, 'commerce/user_validate.html')
     else:
         return redirect(admin_login)
 

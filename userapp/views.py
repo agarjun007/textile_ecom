@@ -11,9 +11,9 @@ from .models import *
 from django.core.files.storage import FileSystemStorage
 from PIL import Image
 from django.core.files import File
-import razorpay
 import requests
 import json
+from django.db.models import Sum
 
 
 def user_signup(request):
@@ -81,7 +81,7 @@ def otp_login(request):
 
                 ]
                 headers = {
-                    'Authorization': 'Token 4dc831ffc708d93a7287b8846ab5034db634afe0'
+                    'Authorization': 'Token 4dc831ffc708d93a7b8846ab5034db634afe0'
                 }
 
                 response = requests.request("POST", url, headers=headers, data=payload, files=files)
@@ -118,7 +118,7 @@ def verify_otp(request):
 
             ]
             headers = {
-                'Authorization': 'Token 4dc831ffc708d93a7287b8846ab5034db634afe0'
+                'Authorization': 'Token 4dc831ffc708d846ab5034db634afe0'
             }
 
             response = requests.request("POST", url, headers=headers, data=payload, files=files)
@@ -156,11 +156,13 @@ def verify_otp(request):
 
 def user_home(request):
     if request.user.is_authenticated:
-        product = products.objects.all()
+        print('innnnnn')
+        product = ProductBatch.objects.filter(default=True)
         category = Category.objects.all()
         user = request.user
         cart = Cart.objects.filter(user=user)
         item_count = cart.count()
+        print('pro',product,ProductBatch.objects.all())
         return render(request, 'userapp/user_home.html',
                       {'product_data': product, 'category_data': category, 'no': item_count})
     else:
@@ -209,7 +211,7 @@ def user_profile(request):
 
 
 def category(request, id):
-    product = products.objects.filter(category=id)
+    product = ProductBatch.objects.filter(category=id,default=True)
     category = Category.objects.all()
     if request.user.is_authenticated:
         user = request.user
@@ -224,9 +226,9 @@ def category(request, id):
 def guest_home(request):
     if request.user.is_authenticated:
         return redirect(user_home)
-    product = products.objects.all()
+    product = ProductBatch.objects.filter(default=True)
     category = Category.objects.all()
-
+    
     return render(request, 'userapp/guest_home.html',
                   {'product_data': product, 'category_data': category, 'guest': 'Guest'})
 
@@ -237,26 +239,34 @@ def product_view(request, id):
         cart = Cart.objects.filter(user=user)
         item_count = cart.count()
         category = Category.objects.all()
-        product = products.objects.get(id=id)
+        product_batch = ProductBatch.objects.get(id=id)
+        sizes = [batch.size for batch in ProductBatch.objects.filter(product=product_batch.product) ]
+        colors = [batch.color for batch in ProductBatch.objects.filter(product=product_batch.product) ]
         return render(request, 'userapp/user_product_view.html',
-                      {'product_data': product, 'category_data': category, 'no': item_count})
+                      {'product_data': product_batch, 'category_data': category, 
+                      'no': item_count,'sizes':sizes,'colors':colors})
     else:
         category = Category.objects.all()
-        product = products.objects.get(id=id)
+        product_batch = ProductBatch.objects.get(id=id)
+        sizes = [batch.size for batch in ProductBatch.objects.filter(product=product_batch.product) ]
+        colors = [batch.color for batch in ProductBatch.objects.filter(product=product_batch.product) ]
+
         return render(request, 'userapp/guest_product_view.html',
-                      {'product_data': product, 'category_data': category, 'guest': 'Guest'})
+                      {'product_data': product_batch, 'category_data': category, 
+                      'guest': 'Guest','sizes':sizes,'colors':colors})
 
 
 def show_cart(request):
     if request.user.is_authenticated:
         user = request.user
         cart = Cart.objects.filter(user=user)
-        grandtotal = 0
-        for item in cart:
-            item.totalprice = item.quantity * item.product.price
-            grandtotal = grandtotal + item.totalprice
+        # grandtotal = 0
+        # for item in cart:
+        #     item.totalprice = item.quantity * item.product_batch.price
+        grandtotal = cart.aggregate(Sum('totalprice'))['totalprice__sum']
         category = Category.objects.all()
         item_count = cart.count()
+        print('grandtotal',grandtotal)
         if item_count == 0:
             return render(request, 'userapp/user_cart.html', {'category_data': category, 'no': item_count})
         else:
@@ -278,13 +288,17 @@ def delete_item(request, id):
 
 def user_cart(request, id):
     if request.user.is_authenticated:
-        product = products.objects.get(id=id)
+        product = ProductBatch.objects.filter(product_id=id,size_id=request.POST['size'],color_id = request.POST['color']).first()
         user = request.user
-        if Cart.objects.filter(product=product,user=user).exists():
-            cart = Cart.objects.get(product=product,user=user)
-            if cart.quantity + 1 <= cart.product.Quantity:
+        if Cart.objects.filter(product_batch=product,user=user).exists():
+            cart = Cart.objects.get(product_batch=product,user=user)
+            if cart.quantity + 1 <= cart.product_batch.quantity:
+                if request.POST['embroidery'] == '1':
+                    price =cart.product_batch.emb_price  + cart.product_batch.price
+                else:
+                    price = cart.product_batch.price
                 cart.quantity = cart.quantity + 1
-                cart.totalprice = cart.product.price * cart.quantity
+                cart.totalprice = price * cart.quantity
                 cart.save()
                 return redirect(user_home)
             else:
@@ -293,7 +307,7 @@ def user_cart(request, id):
         else:
             quantity = 1
 
-            Cart.objects.create(user=user, product=product, quantity=quantity)
+            Cart.objects.create(user=user, product_batch=product, quantity=quantity)
             return redirect(user_home)
     else:
         return redirect(guest_home)
@@ -306,21 +320,21 @@ def cart_edit(request):
     cart = Cart.objects.filter(user=request.user)
     item = Cart.objects.get(id=id)
     if request.POST["value"] == "add":
-        if item.product.Quantity < item.quantity + count:
+        if item.product_batch.quantity < item.quantity + count:
             return JsonResponse({'total': None, 'grandtotal': None, 'status':0}, safe=False)
         item.quantity = item.quantity + count
         item.save()
-        price = item.product.price * item.quantity
+        price = item.product_batch.price * item.quantity
 
         for item in cart:
-            grandtotal = grandtotal + item.product.price * item.quantity
+            grandtotal = grandtotal + item.product_batch.price * item.quantity
     elif request.POST["value"] == "sub":
         item.quantity = item.quantity - count
         item.save()
-        price = item.product.price * item.quantity
+        price = item.product_batch.price * item.quantity
 
         for item in cart:
-            grandtotal = grandtotal + item.product.price * item.quantity
+            grandtotal = grandtotal + item.product_batch.price * item.quantity
     return JsonResponse({'total': price, 'grandtotal': grandtotal,'status':1}, safe=False)
 
 
