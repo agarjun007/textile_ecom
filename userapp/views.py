@@ -298,7 +298,7 @@ def user_cart(request, id):
                 else:
                     price = cart.product_batch.price
                 cart.quantity = cart.quantity + 1
-                cart.totalprice = price * cart.quantity
+                cart.totalprice = cart.totalprice + price
                 cart.save()
                 return redirect(user_home)
             else:
@@ -307,35 +307,44 @@ def user_cart(request, id):
         else:
             quantity = 1
 
-            Cart.objects.create(user=user, product_batch=product, quantity=quantity)
+            if request.POST['embroidery'] == '1':
+                price = product.emb_price  +product.price
+            else:
+                price = product.price
+            Cart.objects.create(user=user, product_batch=product, quantity=quantity,totalprice = price)
+
             return redirect(user_home)
     else:
         return redirect(guest_home)
 
 
 def cart_edit(request):
-    id = request.POST["id"]
     count = 1
     grandtotal = 0
-    cart = Cart.objects.filter(user=request.user)
-    item = Cart.objects.get(id=id)
+    
     if request.POST["value"] == "add":
+        id = request.POST["id"]
+        cart = Cart.objects.filter(user=request.user)
+        item = Cart.objects.get(id=id)
         if item.product_batch.quantity < item.quantity + count:
             return JsonResponse({'total': None, 'grandtotal': None, 'status':0}, safe=False)
         item.quantity = item.quantity + count
+        item.totalprice = item.totalprice + (item.product_batch.price *count)
         item.save()
-        price = item.product_batch.price * item.quantity
 
         for item in cart:
-            grandtotal = grandtotal + item.product_batch.price * item.quantity
+            grandtotal = grandtotal + item.totalprice
     elif request.POST["value"] == "sub":
+        id = request.POST["id"]
+        cart = Cart.objects.filter(user=request.user)
+        item = Cart.objects.get(id=id)
         item.quantity = item.quantity - count
+        item.totalprice = item.totalprice - (item.product_batch.price *count)
         item.save()
-        price = item.product_batch.price * item.quantity
 
         for item in cart:
-            grandtotal = grandtotal + item.product_batch.price * item.quantity
-    return JsonResponse({'total': price, 'grandtotal': grandtotal,'status':1}, safe=False)
+            grandtotal = grandtotal + item.totalprice
+    return JsonResponse({'total': item.totalprice, 'grandtotal': grandtotal,'status':1}, safe=False)
 
 
 def user_logout(request):
