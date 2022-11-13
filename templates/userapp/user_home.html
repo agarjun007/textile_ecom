@@ -31,8 +31,8 @@
     <div class="card " style="width: 10rem mr-5;margin-top: 40px;margin-left: 15px;">
       <img class="card-img-top" src="{{x.ImageURL}}" alt="Card image cap" style="height: 200px; width: 200px;">
       <div class="card-body">
-        <h5 class="card-title">{{x.productname}}</h5>
-        <p class="card-text">{{x.productdesc}}</p>
+        <h5 class="card-title">{{x.product.productname}}</h5>
+        <p class="card-text">{{x.product.productdesc}}</p>
 	<h6> price: {{x.price}}₹</h6><br>
         <!-- <a href="/user_cart/{{x.id}}" class="btn btn-primary">Add to cart</a> -->
         <a href="/product_view/{{x.id}}" class="btn btn-success">View</a>

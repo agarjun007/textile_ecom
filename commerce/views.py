@@ -12,6 +12,8 @@ from PIL import Image
 from django.core.files import File
 from datetime import date, datetime, timedelta
 
+ACTIVE = 1
+INACTICE =0
 
 def admin_login(request):
     if request.session.has_key('password'):
@@ -32,9 +34,9 @@ def admin_login(request):
 
 def admin_panel(request):
     if request.session.has_key('password'):
-        user = User.objects.all()
-        product = products.objects.all()
-        # order = Order.objects.all()
+        user = User.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        product = products.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        # order = Order.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         # order_collection = {}
         # for order in order:
         #     if not order.tid in order_collection.keys():
@@ -52,7 +54,7 @@ def admin_panel(request):
 
 def admin_panel_user(request):
     if request.session.has_key('password'):
-        user = User.objects.all()
+        user = User.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         return render(request, 'commerce/adminpanel_user.html', {'table_data': user})
     else:
         return redirect(admin_login)
@@ -60,9 +62,10 @@ def admin_panel_user(request):
 
 def admin_panel_category(request):
     if request.session.has_key('password'):
-        categories = Category.objects.all()
+    
+        categories = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         for category in categories:
-            total_items = products.objects.filter(category=category)
+            total_items = products.objects.filter(category=category,status=ACTIVE,deleted_at__isnull=True)
             category.productcount = total_items.count()
         return render(request, 'commerce/adminpanel_category.html', {'table_data': categories})
     else:
@@ -93,7 +96,7 @@ def category_validate(request,id=None):
 
 def admin_panel_colors(request):
     if request.session.has_key('password'):
-        colors = Color.objects.all()
+        colors = Color.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         return render(request, 'commerce/adminpanel_color.html', {'table_data': colors})
     else:
         return redirect(admin_login)
@@ -124,7 +127,7 @@ def color_validate(request, id=None):
 
 def admin_panel_sizes(request):
     if request.session.has_key('password'):
-        sizes = Size.objects.all()
+        sizes = Size.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         return render(request, 'commerce/adminpanel_size.html', {'table_data': sizes})
     else:
         return redirect(admin_login)
@@ -153,7 +156,9 @@ def size_validate(request, id=None):
 def delete_category(request, id):
     if request.session.has_key('password'):
         category_data = Category.objects.get(id=id)
-        category_data.delete()
+        category_data.status = INACTIVE
+        category_data.deleted_at = datetime.now()
+        category_data.save()
         return redirect(admin_panel_category)
     else:
         return redirect(admin_login)
@@ -161,17 +166,55 @@ def delete_category(request, id):
 
 def admin_panel_products(request):
     if request.session.has_key('password'):
-        product_data = ProductBatch.objects.all()
+        product_data = products.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         return render(request, 'commerce/adminpanel_products.html', {'table_data': product_data})
     else:
         return redirect(admin_login)
 
+def admin_panel_subproducts(request):
+    if request.session.has_key('password'):
+        product_data = ProductBatch.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        return render(request, 'commerce/adminpanel_subproducts.html', {'table_data': product_data})
+    else:
+        return redirect(admin_login)
+
+
+def mainproduct_validate(request, id):
+    if request.session.has_key('password'):
+        category_data = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        if id:
+            product = products.objects.get(id=id)
+            if request.method == "POST":
+                product_name = request.POST['productname']
+                product_desc = request.POST['productdesc']
+                category_id = request.POST['category']
+                product.productname = product_name
+                product.productdesc = product_desc
+                product.category_id = category_id
+                product.save()
+                return redirect(admin_panel_products)
+            else:
+                return render(request, 'commerce/main_product_validate.html',{'product_data':product,
+                'category_data':category_data})
+        else:
+            return redirect(admin_panel_products)
+            # if request.method == "POST":
+            #     color_name = request.POST['colorname']
+            #     code = request.POST['code']
+            #     Color.objects.get_or_create(name = color_name,color_code = code)
+            #     return redirect(admin_panel_colors)
+            # else:
+                # return render(request, 'commerce/main_product_validate.html')
+    else:
+        return redirect(admin_login)
+
+
 def product_validate(request, id=None):
     if request.session.has_key('password'):
-        sizes = Size.objects.all()
-        colors = Color.objects.all()
-        products_data = products.objects.all()
-        category_data = Category.objects.all()
+        sizes = Size.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        colors = Color.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        products_data = products.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        category_data = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         if id:
             product_batch = ProductBatch.objects.get(id=id)
             if request.method == "POST":
@@ -181,7 +224,7 @@ def product_validate(request, id=None):
                 price = request.POST['price']
                 quantity = request.POST['quantity']
                 parent_product = request.POST.get('parent_product')
-                unit = request.POST['unit']
+                unit = 'No.s'
                 size = request.POST['size']
                 color = request.POST['color']
                 embroidery = request.POST['embroidery']
@@ -212,7 +255,7 @@ def product_validate(request, id=None):
                 else:
                     pass
                 product_batch.save()
-                return redirect(admin_panel_products)
+                return redirect(admin_panel_subproducts)
             else:
                 return render(request, 'commerce/product_validate.html',{'product_data':product_batch,
                 'size_data':sizes,'color_data':colors,'products_data':products_data,'category_data':category_data})
@@ -221,12 +264,12 @@ def product_validate(request, id=None):
             if request.method == "POST":
                 print(request.POST)
                 category_id = request.POST['category']
-                product_name = request.POST['productname']
-                product_desc = request.POST['productdesc']
+                product_name = request.POST.get('productname')
+                product_desc = request.POST.get('productdesc')
                 price = request.POST['price']
                 quantity = request.POST['quantity']
                 parent_product = request.POST.get('parent_product','0')
-                unit = request.POST['unit']
+                unit = 'No.s'
                 size = request.POST['size']
                 color = request.POST['color']
                 embroidery = request.POST['embroidery']
@@ -251,7 +294,7 @@ def product_validate(request, id=None):
                 product_batch.price = price
                 product_batch.quantity = quantity
                 product_batch.unit = unit
-                product_batch.save()
+                product_batch.save() 
                 if 'productimage' in request.FILES:
                     image,created = ProductImages.objects.get_or_create(product_batch = product_batch)
                     image.productimage = request.FILES.get('productimage')
@@ -259,7 +302,7 @@ def product_validate(request, id=None):
                 else:
                     pass
     
-                return redirect(admin_panel_products)
+                return redirect(admin_panel_subproducts)
             else:
                 return render(request, 'commerce/product_validate.html',{'size_data':sizes,'color_data':colors,
                 'products_data':products_data,'category_data':category_data})
@@ -269,9 +312,15 @@ def product_validate(request, id=None):
 
 def delete_products(request, id):
     if request.session.has_key('password'):
-        product = products.objects.get(id=id)
-        product.delete()
-        return redirect(admin_panel_products)
+        product_batch = ProductBatch.objects.get(id=id)
+        product_batch.status = INACTIVE
+        product_batch.deleted_at = datetime.now()
+        product_batch.save()
+        if not product_batch.product.batches.filter(status=ACTIVE,deleted_at__isnull=True):
+            product_batch.product.status = INACTIVE
+            product_batch.product.deleted_at = datetime.now()
+            product_batch.product.save()
+        return redirect(admin_panel_subproducts)
     else:
         return redirect(admin_login)
 
@@ -336,11 +385,32 @@ def block_user(request, id):
 def delete_user(request, id):
     if request.session.has_key('password'):
         user = User.objects.get(id=id)
-        user.delete()
+        user.status = INACTIVE
+        user.deleted_at = datetime.now()
+        user.save()
         return redirect(admin_panel)
     else:
         return redirect(admin_login)
 
+def delete_size(request, id):
+    if request.session.has_key('password'):
+        size =Size.objects.get(id=id)
+        size.status = INACTIVE
+        size.deleted_at = datetime.now()
+        size.save()
+        return redirect(admin_panel_sizes)
+    else:
+        return redirect(admin_login)
+
+def delete_color(request, id):
+    if request.session.has_key('password'):
+        color = Color.objects.get(id=id)
+        color.status = INACTIVE
+        color.deleted_at = datetime.now()
+        color.save()
+        return redirect(admin_panel_colors)
+    else:
+        return redirect(admin_login)
 
 def admin_logout(request):
     if request.session.has_key('password'):

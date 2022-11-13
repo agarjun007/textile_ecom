@@ -48,7 +48,7 @@ def user_signin(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = User.objects.filter(username=username).first()
+        user = User.objects.filter(username=username,status=ACTIVE,deleted_at__isnull=True).first()
 
         if user is not None and check_password(password, user.password):
             if user.is_active == False:
@@ -157,12 +157,12 @@ def verify_otp(request):
 def user_home(request):
     if request.user.is_authenticated:
         print('innnnnn')
-        product = ProductBatch.objects.filter(default=True)
-        category = Category.objects.all()
+        product = ProductBatch.objects.filter(default=True,status=ACTIVE,deleted_at__isnull=True)
+        category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         user = request.user
         cart = Cart.objects.filter(user=user)
         item_count = cart.count()
-        print('pro',product,ProductBatch.objects.all())
+        print('pro',product,ProductBatch.objects.filter(status=ACTIVE,deleted_at__isnull=True))
         return render(request, 'userapp/user_home.html',
                       {'product_data': product, 'category_data': category, 'no': item_count})
     else:
@@ -195,7 +195,7 @@ def user_profile(request):
 
             return redirect(user_home)
         else:
-            category = Category.objects.all()
+            category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
             user = request.user
             cart = Cart.objects.filter(user=user)
             item_count = cart.count()
@@ -211,8 +211,8 @@ def user_profile(request):
 
 
 def category(request, id):
-    product = ProductBatch.objects.filter(category=id,default=True)
-    category = Category.objects.all()
+    product = ProductBatch.objects.filter(category=id,default=True,status=ACTIVE,deleted_at__isnull=True)
+    category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
     if request.user.is_authenticated:
         user = request.user
         cart = Cart.objects.filter(user=user)
@@ -226,8 +226,8 @@ def category(request, id):
 def guest_home(request):
     if request.user.is_authenticated:
         return redirect(user_home)
-    product = ProductBatch.objects.filter(default=True)
-    category = Category.objects.all()
+    product = ProductBatch.objects.filter(default=True,status=ACTIVE,deleted_at__isnull=True)
+    category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
     
     return render(request, 'userapp/guest_home.html',
                   {'product_data': product, 'category_data': category, 'guest': 'Guest'})
@@ -238,18 +238,23 @@ def product_view(request, id):
         user = request.user
         cart = Cart.objects.filter(user=user)
         item_count = cart.count()
-        category = Category.objects.all()
+        category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         product_batch = ProductBatch.objects.get(id=id)
-        sizes = [batch.size for batch in ProductBatch.objects.filter(product=product_batch.product) ]
-        colors = [batch.color for batch in ProductBatch.objects.filter(product=product_batch.product) ]
+        sizes = [batch.size for batch in ProductBatch.objects.filter(product=product_batch.product,status=ACTIVE,deleted_at__isnull=True) ]
+        colors = []
+        for batch in ProductBatch.objects.filter(product=product_batch.product,status=ACTIVE,deleted_at__isnull=True):
+            if any(color.color_code == batch.color.color_code for color in colors):
+                continue
+            else:
+                colors.append(batch.color)
         return render(request, 'userapp/user_product_view.html',
                       {'product_data': product_batch, 'category_data': category, 
                       'no': item_count,'sizes':sizes,'colors':colors})
     else:
-        category = Category.objects.all()
+        category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         product_batch = ProductBatch.objects.get(id=id)
-        sizes = [batch.size for batch in ProductBatch.objects.filter(product=product_batch.product) ]
-        colors = [batch.color for batch in ProductBatch.objects.filter(product=product_batch.product) ]
+        sizes = [batch.size for batch in ProductBatch.objects.filter(product=product_batch.product,status=ACTIVE,deleted_at__isnull=True) ]
+        colors = [batch.color for batch in ProductBatch.objects.filter(product=product_batch.product,status=ACTIVE,deleted_at__isnull=True)]
 
         return render(request, 'userapp/guest_product_view.html',
                       {'product_data': product_batch, 'category_data': category, 
@@ -264,7 +269,7 @@ def show_cart(request):
         # for item in cart:
         #     item.totalprice = item.quantity * item.product_batch.price
         grandtotal = cart.aggregate(Sum('totalprice'))['totalprice__sum']
-        category = Category.objects.all()
+        category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         item_count = cart.count()
         print('grandtotal',grandtotal)
         if item_count == 0:
@@ -288,7 +293,9 @@ def delete_item(request, id):
 
 def user_cart(request, id):
     if request.user.is_authenticated:
-        product = ProductBatch.objects.filter(product_id=id,size_id=request.POST['size'],color_id = request.POST['color']).first()
+        product = ProductBatch.objects.filter(product_id=id,size_id=request.POST['size'],
+                                color__color_code = request.POST['color'],
+                                status=ACTIVE,deleted_at__isnull=True).first()
         user = request.user
         if Cart.objects.filter(product_batch=product,user=user).exists():
             cart = Cart.objects.get(product_batch=product,user=user)
@@ -323,6 +330,7 @@ def cart_edit(request):
     grandtotal = 0
     
     if request.POST["value"] == "add":
+        print('request.POST',request.POST)
         id = request.POST["id"]
         cart = Cart.objects.filter(user=request.user)
         item = Cart.objects.get(id=id)
@@ -344,8 +352,17 @@ def cart_edit(request):
 
         for item in cart:
             grandtotal = grandtotal + item.totalprice
+    item = Cart.objects.get(id=id)
     return JsonResponse({'total': item.totalprice, 'grandtotal': grandtotal,'status':1}, safe=False)
 
+def get_subproduct_details(request):
+    subproduct = ProductBatch.objects.filter(product_id=request.POST['product_id'],size_id=request.POST['size_id'],
+                                color__color_code = request.POST['color_code'],
+                                status=ACTIVE,deleted_at__isnull=True).first()
+    
+    data={'image': subproduct.ImageURL, 'has_emb': subproduct.embroidery,'emb_price':subproduct.emb_price,
+     'status':1}
+    return JsonResponse(data)
 
 def user_logout(request):
     if request.user.is_authenticated:

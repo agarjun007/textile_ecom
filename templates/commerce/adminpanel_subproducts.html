@@ -1,20 +1,20 @@
 {% extends 'commerce/base_admin.html'%} 
 
-{%block title%}Products {%endblock%}
+{%block title%} SubProducts {%endblock%}
 {%block head%} {%endblock%}
 
 
 {% block content%}
 <div class="container-xl">
   <div class="table-responsive">
-    <!-- <div style="padding-left: 15rem; display: flex; justify-content: flex-end;
+    <div style="padding-left: 15rem; display: flex; justify-content: flex-end;
     padding-top: 3rem;"> <a href="{%url 'create_product'%}"><button type="button" class="btn btn-success btn-sm">Add Product</button></a>
         
-    </div> -->
+    </div>
       <div class="table-wrapper">
           <div class="table-title">
               <div class="row">
-                  <div class="col-sm-8"><h2>Product <b>Details</b></h2></div>
+                  <div class="col-sm-8"><h2>SubProduct <b>Details</b></h2></div>
                   
               </div>
           </div>
@@ -24,22 +24,26 @@
                       <th>No</th>
                       <th>category </th>
                       <th>Productname </th>
-                      
+                      <th>Quantity</th>
+                      <!-- <th>Unit</th> -->
+                      <th>Price</th>
+                      <th>Productimage</th>
                       <th>Actions</th>
                   </tr>
               </thead>
               <tbody>
-              {% for product in table_data %}
+              {% for x in table_data %}
                   <tr>
                       <td>{{forloop.counter}}</td>
-                      <td>{{product.category.categoryname}}</td>
-                      <td>{{product.productname}}</td>
-                      <!-- <td>{{x.quantity}}</td> -->
+                      <td>{{x.product.category.categoryname}}</td>
+                      <td>{{x.product.productname}}</td>
+                      <td>{{x.quantity}}</td>
                       <!-- <td>{{x.unit}}</td> -->
-                      <!-- <td>{{x.price}}</td> -->
-                      <!-- <td><img style="height: 50px;width: 60px;" src="{{x.ImageURL}}"></td> -->
+                      <td>{{x.price}}</td>
+                      <td><img style="height: 50px;width: 60px;" src="{{x.ImageURL}}"></td>
                       <td>
-                          <a href="{% url 'edit_main_product' product.id %}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                          <a href="{% url 'edit_product' x.id %}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                          <a href="{% url 'delete_product' x.id %}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.product.productname}} - {{x.size.name}} - {{x.color.name}} ?')" class="material-icons">&#xE872;</i></a>
                       </td>
                   </tr>
                      {% endfor %}  

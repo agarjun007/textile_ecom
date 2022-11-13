@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://codepen.io/imgix/pen/d06269809bb83c85326ebbbf7e81241b" >
 <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/s.cdpn.io/164071/drift-basic.css" >
 
+
 {%endblock%}
 {% block login%}
 {% endblock%}
@@ -256,7 +257,7 @@ body {
         <div class="preview col-md-6">
           
           <div class="preview-pic tab-content">
-            <div class="tab-pane active" id="pic-1"><img class="demo-trigger" style="height:200px ; width:150px;" src="{{product_data.ImageURL}}" data-zoom="{{product_data.ImageURL}}"> </div>
+            <div class="tab-pane active" id="pic-1"><img id="pro_img" class="demo-trigger" style="height:200px ; width:150px;" src="{{product_data.ImageURL}}" data-zoom="{{product_data.ImageURL}}"> </div>
             <!-- <div class="tab-pane" id="pic-2"><img src="{{product_data.ImageURL}}" /></div>
             <div class="tab-pane" id="pic-3"><img src="{{product_data.ImageURL}}" /></div>
             <div class="tab-pane" id="pic-4"><img src="{{product_data.ImageURL}}" /></div>
@@ -272,8 +273,8 @@ body {
           
         </div>
         <div class="details col-md-6">
-          <h3 class="product-title">{{product_data.productname}}</h3>
-          <div class="rating">
+          <h3 class="product-title">{{product_data.product.productname}}</h3>
+          <!-- <div class="rating">
             <div class="stars">
               <span class="fa fa-star checked"></span>
               <span class="fa fa-star checked"></span>
@@ -282,21 +283,23 @@ body {
               <span class="fa fa-star"></span>
             </div>
             <span class="review-no">41 reviews</span>
-          </div>
+          </div> -->
           <p class="product-description">{{product_data.product.productdesc}}</p>
           <h4 class="price">current price: <span>₹{{product_data.price}}</span></h4>
-          <p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87 votes)</strong></p>
+          <!-- <p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87 votes)</strong></p> -->
           <form novalidate action="/user_cart/{{product_data.product.id}}" method="post">
          {%csrf_token%}
-         <h5 class="emb">Embroidery:
+         <h5 class="emb" {%if not product_data.embroidery %} style="display: none;" {%endif%}>Embroidery:
           <input type="radio" name="embroidery" id="has_emb" checked value="0">
           <label for="has_emb">No</label>
           <input type="radio" name="embroidery" id="no_emb" value="1">
           <label for="no_emb">Yes</label>
+          <h3 class="emb_price">embroidery price: <span id="emb_price">₹{{product_data.emb_price}}</span></h4>
+         </h5>
             <h5 class="sizes">sizes:
             <select name="size" id="size" class="form-control" >
               {%for size in sizes%}
-              <option value="{{size.id}}" >{{size.name}}</option>
+              <option value="{{size.id}} " {%if product_data.size.id == size.id%} checked {%endif%}>{{size.name}}</option>
               {% endfor %}
           </select>
             
@@ -304,7 +307,7 @@ body {
           <h5 class="colors">colors:
             <select name="color" id="color" class="form-control" >
               {%for color in colors%}
-              <option value="{{color.id}}" >{{color.name}}</option>
+              <option value="{{color.color_code}}" {%if product_data.color.color_code == color.color_code%} checked {%endif%} >{{color.name}}</option>
               {% endfor %}
             </select>
            
@@ -321,17 +324,55 @@ body {
     </div>
   </div>
 </div>
-<script
-  src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 
+<!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
   <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/164071/Drift.min.js"></script>
+
   <script>
+
   var demoTrigger = document.querySelector('.demo-trigger');
 var paneContainer = document.querySelector('.details');
 
 new Drift(demoTrigger, {
   paneContainer: paneContainer,
   inlinePane: false,
+});
+$('select').on('change', function() {
+  input_data = {
+    csrfmiddlewaretoken: '{{ csrf_token }}',
+    'product_id':"{{product_data.product.id}}",
+    'size_id':$('#size').val(),
+    'color_code':$('#color').val()
+  }
+  console.log('input',input_data);
+  $.ajax({
+          url : "{%url 'get_subproduct_details' %}",
+          type: "POST",
+          data : input_data,
+          dataType : "json",
+          success: function( data ){
+            if(data.status == 1){
+              if(data.has_emb == true){
+                $('.emb').show();
+                $('.emb_price').show();
+                $('#emb_price').html(data.emb_price);
+
+              }
+              else{
+                $('.emb').hide();
+                $('.emb_price').hide();
+                $('#emb_price').html(0)
+              }
+              if(data.image != ''){
+                $('#pro_img').attr('src', data.image);
+                $('#pro_img').attr('data-zoom', data.image);
+
+              }
+            }
+            console.log('succ',data);
+          }
+      });
 });
 </script>
 {%endblock%}

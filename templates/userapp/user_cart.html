@@ -162,11 +162,11 @@
         <div class="col-lg-7 ml-auto">
           <div class="bg-light rounded-pill px-4 py-3 text-uppercase font-weight-bold">Order summary </div>
           <div class="p-4">
-           <p class="font-italic mb-4">Shipping and additional costs are calculated based on values you have entered.</p> 
+           <!-- <p class="font-italic mb-4">Shipping and additional costs are calculated based on values you have entered.</p>  -->
             <ul class="list-unstyled mb-4">
-              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Order Subtotal </strong><strong>₹. <span id="subtotal" class="totalPrice">{{grandtotal}}</span></strong></li>
+              <!-- <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Order Subtotal </strong><strong>₹. <span id="subtotal" class="totalPrice">{{grandtotal}}</span></strong></li>
               <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Shipping and handling</strong><strong>₹.00</strong></li>
-              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Tax</strong><strong>₹. 00</strong></li>
+              <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Tax</strong><strong>₹. 00</strong></li> -->
               <li class="d-flex justify-content-between py-3 border-bottom"><strong class="text-muted">Total</strong>
                 <h5 class="font-weight-bold">₹. <span id="grandtotal" class="totalPrice">{{grandtotal}}</span></h5>
               </li>
@@ -211,7 +211,7 @@
     else{
       $('#minus'+ plusid).prop('disabled', false);
     }
-    data={
+    input_data={
       "id":plusid,
       "value": "add",
       csrfmiddlewaretoken: '{{ csrf_token }}',
@@ -220,13 +220,13 @@
     $.ajax({
           url : '/cart_edit/',
           type: "POST",
-          data : data,
+          data : input_data,
           dataType : "json",
           success: function( data ){
             if (data.status == 1)  {
             let  total = parseInt(data.total) 
             let grandtotal = parseInt(data.grandtotal)
-            console.log(total)
+            console.log(input_data,total,data.grandtotal)
             $('#output'+plusid).html(total)
             $('#subtotal').html(grandtotal)
             $('#grandtotal').html(grandtotal)
@@ -251,7 +251,7 @@
       $('#minus'+ minusid).prop('disabled', false);
     }
 
-    data={
+    input_data={
       "id":minusid,
       "value": "sub",
       csrfmiddlewaretoken: '{{ csrf_token }}',
@@ -260,12 +260,12 @@
     $.ajax({
           url : '/cart_edit/',
           type: "POST",
-          data : data,
+          data : input_data,
           dataType : "json",
           success: function( data ){
             let  total = parseInt(data.total) 
             let grandtotal = parseInt(data.grandtotal)
-            console.log(total)           
+            console.log(input_data,total,data.grandtotal)           
             $('#output'+minusid).html(total)
             $('#subtotal').html(grandtotal)
             $('#grandtotal').html(grandtotal)

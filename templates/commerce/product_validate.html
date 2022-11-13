@@ -97,16 +97,16 @@ body {
             <h2 class="title pt-5 pb-3">Products</h2>
             <form method="POST" novalidate enctype="multipart/form-data" action="{{request.get_full_path}}"class="myform">
                 {% csrf_token %}
-                <input type="radio" id="parent_prod" name="prod_type" checked value="0">
+                <input type="radio" id="parent_prod" name="prod_type" {%if not product_data.product%} checked {%endif%} value="0">
   <label for="parent_prod"> Parent Product</label>
-  <input type="radio" id="sub_prod" name="prod_type" value="1">
+  <input type="radio" id="sub_prod" name="prod_type" value="1" {%if product_data.product%} checked {%endif%}>
   <label for="sub_prod"> Sub Product</label>
                 <div class="row rone">
-                    <div class="form-group col-md-5 fone py-3"> 
+                    <div class="form-group col-md-6 fone py-3"> 
                         <select name="category" {%if product_data.product%} style="display: none;" {%endif%} id="category" class="form-control" >
                             <option value="0" >-choose Category-</option>
                             {% for x in category_data %}
-                            <option value="{{x.id}}" {%if product_data.category.id == x.id%} selected {%endif%}>{{x.categoryname}}</option>
+                            <option value="{{x.id}}" {%if product_data.product.category.id == x.id%} selected {%endif%}>{{x.categoryname}}</option>
                             {% endfor %}
                         </select>
                         <select {%if product_data.product%} style="display: block;" {%else%}style="display: none;" {%endif%}  name="parent_product" id="parent_product" class="form-control" >
@@ -116,21 +116,23 @@ body {
                             {% endfor %}
                         </select>
                     </div>
-                        <div class="form-group col-md-4 ftwo py-3">
-                            <input type="text" name="productname" class="form-control" value="{{product_data.product.productname}}" placeholder="Product name" required> 
+                        <div class="form-group col-md-5 ftwo py-3">
+                            <input type="text" {%if product_data.product%} style="display: none;" {%endif%} name="productname" class="form-control" id="productname" value="{{product_data.product.productname}}" placeholder="Product name" required> 
                            </div>
-                            <div class="form-group col-md-3 ffive py-3">
-                               <select name="size"class="form-control" required style="width: 10rem;">
-                                   <option >-choose size-</option>
-                                   {% for x in size_data %}
-                            <option value="{{x.id}}" {%if product_data.size.id == x.id%} selected {%endif%}>{{x.name}}</option>
-                            {% endfor %}
-                              
-                                  </select>            
-                                </div>
+                           
                 </div>
                
                 <div class="row rtwo">
+                    <div class="form-group col-md-3 ffive py-3">
+                        <select name="size"class="form-control" required style="width: 10rem;">
+                            <option >-choose size-</option>
+                            {% for x in size_data %}
+                     <option value="{{x.id}}" {%if product_data.size.id == x.id%} selected {%endif%}>{{x.name}}</option>
+                     {% endfor %}
+                       
+                           </select>            
+                         </div>
+
                     <div class="form-group col-md-4 ffive py-3">
                         <select name="color"class="form-control" required style="width: 10rem;">
                             <option >-choose color-</option>
@@ -140,13 +142,13 @@ body {
                        
                            </select>            
                          </div>  
-                         <div class="form-group col-md-4 ffive py-3">
+                         <!-- <div class="form-group col-md-4 ffive py-3">
                             <select name="unit"class="form-control" required style="width: 10rem;">
                                 <option >-choose unit-</option>
                                 <option value="No.s" {%if product_data.unit == 'No.s'%} selected {%endif%}>No.s</option>
                            
                                </select>            
-                             </div>     
+                             </div>      -->
                                   
                     <div class="form-group col-md-3 ffive py-3">
                         <input type="number" name="quantity" min="1" class="form-control" value="{{product_data.quantity}}" placeholder="Quantity" style="width: 7rem;"  required> 
@@ -179,12 +181,13 @@ body {
                         <label>Product Image</label><input type="file" name="productimage" onchange="viewImage(event)" >
                     </div>
                     <div class="form-group col-md-6 fthree py-3"> 
-                        <textarea class="form-control jk" name="productdesc" placeholder="Product Description"  required id="" cols="10" rows="5"> {{product_data.product.productdesc}}</textarea> </div>
+                      <label {%if product_data.product%} style="display: none;" {%endif%} id="pro_desc">Product Description</label> 
+                       <textarea {%if product_data.product%} style="display: none;" {%endif%} class="form-control jk" name="productdesc" placeholder="Product Description"  required id="productdesc" cols="10" rows="5"> {{product_data.product.productdesc}}</textarea> </div>
                 </div>
 
                 <div class="row rfive" style="margin-top: -40px;">
                     <div class="form-group col-md-6 fseven py-3"> <button type="submit" class="btn btn-primary"><span>Submit</span></button> </div>
-                    <div class="form-group col-md-6 feight py-3"> <div class="form-group col-md-6 feight py-3"><img src="{{product_data.ImageURL}}" id="imageview" {%if product_data.ImageURL != ''%} style="display: block;height: 100px;width: 100px;"{%else%}style="display: none;height: 100px;width: 100px;" {%endif%}>
+                    <div class="form-group col-md-6 feight py-3"> <div class="form-group col-md-6 feight py-3"><img src="{{product_data.ImageURL}}" id="imageview" {%if product_data.ImageURL != '' and  product_data.ImageURL is not None%} style="display: block;height: 100px;width: 100px;"{%else%}style="display: none;height: 100px;width: 100px;" {%endif%}>
                         
                     </div>
                 </div>
@@ -207,12 +210,22 @@ $("input[name='prod_type']").on("change", function(){
     $("#category").prop('required',true);
     $("#parent_product").hide();
     $("#parent_product").prop('required',false);
+    $("#productname").show();
+    $("#productname").prop('required',true);
+    $("#productdesc").show();
+    $("#pro_desc").show();
+    $("#productdesc").prop('required',true);
   } else {
     console.log('fal');
     $("#category").hide();
     $("#category").prop('required',false);
     $("#parent_product").show();
     $("#parent_product").prop('required',true);
+    $("#productname").hide();
+    $("#productname").prop('required',false);
+    $("#productdesc").hide();
+    $("#pro_desc").hide();
+    $("#productdesc").prop('required',false);
   }
 });
 $("input[name='embroidery']").on("change", function(){
