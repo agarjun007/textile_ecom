@@ -53,7 +53,6 @@
                         <td>
                            <a href="{% url 'edit_user' x.id %}" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
                             <a href="{% url 'delete_user' x.id %}" class="delete" title="Delete" data-toggle="tooltip"><i Onclick= "return confirm('Are you sure you want to delete {{x.first_name}} ?')" class="material-icons ">&#xE872;</i></a>
-                            <a href="{% url 'block_user' x.id %}" id="block" class="block" title="Block" data-toggle="tooltip"><i style="color: red;" Onclick= "return confirm('Are you sure you want to continue?')" class="fas fa-ban" ></i></a>
 
                         </td>
                     </tr>

@@ -34,7 +34,7 @@ def admin_login(request):
 
 def admin_panel(request):
     if request.session.has_key('password'):
-        user = User.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        user = User.objects.filter(is_active=ACTIVE)
         product = products.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         # order = Order.objects.filter(status=ACTIVE,deleted_at__isnull=True)
         # order_collection = {}
@@ -54,7 +54,7 @@ def admin_panel(request):
 
 def admin_panel_user(request):
     if request.session.has_key('password'):
-        user = User.objects.filter(status=ACTIVE,deleted_at__isnull=True)
+        user = User.objects.filter(is_active=ACTIVE)
         return render(request, 'commerce/adminpanel_user.html', {'table_data': user})
     else:
         return redirect(admin_login)
@@ -367,26 +367,25 @@ def user_validate(request,id=None):
         return redirect(admin_login)
 
 
-def block_user(request, id):
-    if request.session.has_key('password'):
-        user = User.objects.get(id=id)
-        if user.is_active:
-            user.is_active = False
-            user.save()
+# def block_user(request, id):
+#     if request.session.has_key('password'):
+#         user = User.objects.get(id=id)
+#         if user.is_active:
+#             user.is_active = False
+#             user.save()
 
-        else:
-            user.is_active = True
-            user.save()
-        return redirect(admin_panel_user)
-    else:
-        return redirect(admin_login)
+#         else:
+#             user.is_active = True
+#             user.save()
+#         return redirect(admin_panel_user)
+#     else:
+#         return redirect(admin_login)
 
 
 def delete_user(request, id):
     if request.session.has_key('password'):
         user = User.objects.get(id=id)
-        user.status = INACTIVE
-        user.deleted_at = datetime.now()
+        user.is_active = INACTIVE
         user.save()
         return redirect(admin_panel)
     else:

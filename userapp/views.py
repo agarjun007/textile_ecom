@@ -33,7 +33,7 @@ def user_signup(request):
             else:
                 user = User.objects.create_user(first_name=name, username=username, email=email, password=password1,
                                                 last_name=mobile, is_active=True)
-                user.save();
+                user.save()
             return JsonResponse('valid', safe=False)
         else:
             return JsonResponse('invalid', safe=False)
@@ -48,7 +48,7 @@ def user_signin(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = User.objects.filter(username=username,status=ACTIVE,deleted_at__isnull=True).first()
+        user = User.objects.filter(username=username,is_active=ACTIVE).first()
 
         if user is not None and check_password(password, user.password):
             if user.is_active == False:

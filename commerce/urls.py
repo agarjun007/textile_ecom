@@ -10,7 +10,7 @@ urlpatterns = [
     path('user-validate/', views.user_validate, name='create_user'),
     path('user-validate/<int:id>', views.user_validate, name='edit_user'),
     path('delete_user/<int:id>', views.delete_user, name='delete_user'),
-    path('block_user/<int:id>', views.block_user, name='block_user'),
+    # path('block_user/<int:id>', views.block_user, name='block_user'),
 
     
     path('adminpanel_category/', views.admin_panel_category, name='adminpanelcategory'),

@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from commerce.models import *
 
 
-
 class Userprofile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profilepic = models.ImageField(null=True, blank=True)
