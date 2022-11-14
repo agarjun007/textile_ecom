@@ -211,7 +211,7 @@ def user_profile(request):
 
 
 def category(request, id):
-    product = ProductBatch.objects.filter(category=id,default=True,status=ACTIVE,deleted_at__isnull=True)
+    product = ProductBatch.objects.filter(product__category_id=id,default=True,status=ACTIVE,deleted_at__isnull=True)
     category = Category.objects.filter(status=ACTIVE,deleted_at__isnull=True)
     if request.user.is_authenticated:
         user = request.user
@@ -361,7 +361,7 @@ def get_subproduct_details(request):
                                 status=ACTIVE,deleted_at__isnull=True).first()
     
     data={'image': subproduct.ImageURL, 'has_emb': subproduct.embroidery,'emb_price':subproduct.emb_price,
-     'status':1}
+     'price':subproduct.price,'status':1}
     return JsonResponse(data)
 
 def user_logout(request):
